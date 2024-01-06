@@ -14,6 +14,7 @@ public class ColorManager : MonoBehaviour
     private Color bodyColor;
 
     private bool canSwitch;
+    
     private void Awake()
     {
         meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
@@ -73,34 +74,8 @@ public class ColorManager : MonoBehaviour
         meshRenderer.material.color = bodyColor;
     }
 
-    private void OnTriggerStay(Collider other)
+    public int GetIndex()
     {
-        var clickE = Input.GetKeyDown(KeyCode.E);
-        var box = other.gameObject.GetComponent<BoxCheck>();
-        var boxIndex = box.GetColorIndex();
-
-        if (box)
-            Debug.Log("BOX");
-
-
-        if (box && clickE)
-        {
-            if (boxIndex == colorIndex)
-            {
-                Debug.Log("True");
-            }
-            else
-            {
-                Debug.Log("This is wrong box");
-            }
-        }
-
-    }
-
-
-
-    public Color[] GetColors()
-    {
-        return colors;
+        return colorIndex;
     }
 }
