@@ -12,9 +12,11 @@ public class Box : MonoBehaviour
 
     private States currentState;
 
+    private PlayerController player;
     private MeshRenderer meshRenderer;
     private Animator animator;
 
+    [SerializeField] private float movementSpeed;
     [SerializeField] private Color[] colors;
 
     private int maxWalkTimer;
@@ -24,12 +26,14 @@ public class Box : MonoBehaviour
     {
         meshRenderer = GetComponentInChildren<MeshRenderer>();
         animator = GetComponent<Animator>();
+        player = FindObjectOfType<PlayerController>();
     }
     void Start()
     {
+        movementSpeed = Random.Range(1, 3);
         currentState = States.Idle;
         walkTimer = 0f;
-        maxWalkTimer = 3;
+        maxWalkTimer = 2;
 
         SetColor();
     }
@@ -63,6 +67,7 @@ public class Box : MonoBehaviour
     }
     private void WalkState()
     {
+        transform.position = Vector3.MoveTowards(transform.position, player.transform.position, movementSpeed * Time.deltaTime);
         animator.SetTrigger("isMove");
     }
 
