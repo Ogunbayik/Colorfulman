@@ -30,4 +30,9 @@ public class PlayerAnimationController : MonoBehaviour
         animator.SetBool("isRun", isRun);
     }
 
+    public void PunchAnimation(bool isPunch)
+    {
+        animator.SetBool("isPunch", isPunch);
+    }
+
 }

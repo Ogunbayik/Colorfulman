@@ -4,11 +4,20 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public enum States
+    {
+        Move,
+        Attack
+    }
+
+    public States currentState;
+
     private const string HORIZONTAL_INPUT = "Horizontal";
     private const string VERTICAL_INPUT = "Vertical";
 
     private PlayerAnimationController animationController;
 
+    [SerializeField] private Transform directionHelper;
     [SerializeField] private Transform body;
     [SerializeField] private float walkSpeed;
     [SerializeField] private float runSpeed;
@@ -16,6 +25,7 @@ public class PlayerController : MonoBehaviour
     private float movementSpeed;
     private float horizontalInput;
     private float verticalInput;
+    private float timerPunch;
 
     private Vector3 movementDirection;
 
@@ -28,13 +38,35 @@ public class PlayerController : MonoBehaviour
     {
         isWalk = false;
         movementSpeed = 0f;
+        timerPunch = 0f;
     }
 
     void Update()
     {
-        CheckMovement();
+        switch (currentState)
+        {
+            case States.Move:
+                CheckMovement();
+                HandleMovement();
 
-        HandleMovement();
+                if (Input.GetKey(KeyCode.Q) && !isWalk)
+                    SwitchState(States.Attack);
+                break;
+            case States.Attack:
+                Debug.Log("Punch");
+                animationController.PunchAnimation(true);
+                timerPunch += Time.deltaTime;
+                var punchAnimationTime = 2f;
+
+                if (timerPunch >= punchAnimationTime)
+                {
+                    timerPunch = 0f;
+                    SwitchState(States.Move);
+                    animationController.PunchAnimation(false);
+                }
+                break;
+        }
+
 
     }
 
@@ -43,9 +75,13 @@ public class PlayerController : MonoBehaviour
         var dir = movementDirection.sqrMagnitude;
 
         if (dir != 0)
+        {
             isWalk = true;
+        }
         else
+        {
             isWalk = false;
+        }
     }
 
     private void HandleMovement()
@@ -55,9 +91,14 @@ public class PlayerController : MonoBehaviour
 
         movementDirection = new Vector3(horizontalInput, 0f, verticalInput);
         var running = Input.GetKey(KeyCode.LeftShift);
+        var lastDirection = (directionHelper.position - transform.position).normalized;
+        Debug.Log(lastDirection);
+        
 
         if (isWalk)
         {
+            //HandleRotate();
+            body.transform.forward = Vector3.Lerp(body.transform.forward, movementDirection, 1f);
             movementSpeed = walkSpeed;
             animationController.WalkAnimation(true);
 
@@ -74,11 +115,27 @@ public class PlayerController : MonoBehaviour
 
             transform.Translate(movementDirection * movementSpeed * Time.deltaTime);
             body.transform.position = transform.position; //Karakterin bugunu engellemek için
-            body.transform.forward = Vector3.Lerp(body.transform.forward, movementDirection, 1f);
+
+            
         }
         else
         {
             animationController.WalkAnimation(false);
         }
     }
+
+    private void HandleRotate()
+    {
+        var lookDirection = directionHelper.position - transform.position;
+        body.transform.forward = Vector3.Lerp(body.transform.forward, movementDirection, 1f);
+    }
+
+    public void SwitchState(States state)
+    {
+        currentState = state;
+    }
+
+    
+
+
 }
