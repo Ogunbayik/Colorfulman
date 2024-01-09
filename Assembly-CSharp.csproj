@@ -59,6 +59,8 @@
     <Compile Include="Assets\Scripts\PlayerInteract.cs" />
     <Compile Include="Assets\Scripts\SpawnManager.cs" />
     <Compile Include="Assets\Scripts\ColorManager.cs" />
+    <Compile Include="Assets\Scripts\PunchCollider.cs" />
+    <Compile Include="Assets\Scripts\ScoreManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

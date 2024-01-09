@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
+    [Header(" Settings ")]
     [SerializeField] private Transform boxPrefab;
     [SerializeField] private int maxSpawnTimer;
     
@@ -35,7 +36,6 @@ public class SpawnManager : MonoBehaviour
     {
         var box = Instantiate(boxPrefab);
         box.transform.position = RandomPosition();
-
     }
 
     private Vector3 RandomPosition()

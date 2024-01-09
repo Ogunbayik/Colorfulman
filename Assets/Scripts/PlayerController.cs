@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
@@ -16,11 +17,13 @@ public class PlayerController : MonoBehaviour
     private const string VERTICAL_INPUT = "Vertical";
 
     private PlayerAnimationController animationController;
+    private PunchCollider punchCollider;
 
-    [SerializeField] private Transform directionHelper;
+    [Header(" Settings ")]
     [SerializeField] private Transform body;
     [SerializeField] private float walkSpeed;
     [SerializeField] private float runSpeed;
+    [SerializeField] private float rotateSpeed;
 
     private float movementSpeed;
     private float horizontalInput;
@@ -33,6 +36,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         animationController = GetComponentInChildren<PlayerAnimationController>();
+        punchCollider = GetComponentInChildren<PunchCollider>();
     }
     void Start()
     {
@@ -46,59 +50,64 @@ public class PlayerController : MonoBehaviour
         switch (currentState)
         {
             case States.Move:
-                CheckMovement();
-                HandleMovement();
-
-                if (Input.GetKey(KeyCode.Q) && !isWalk)
-                    SwitchState(States.Attack);
+                HandleMove();
                 break;
             case States.Attack:
-                Debug.Log("Punch");
-                animationController.PunchAnimation(true);
-                timerPunch += Time.deltaTime;
-                var punchAnimationTime = 2f;
-
-                if (timerPunch >= punchAnimationTime)
-                {
-                    timerPunch = 0f;
-                    SwitchState(States.Move);
-                    animationController.PunchAnimation(false);
-                }
+                HandleAttack();
                 break;
         }
+    }
 
+    private void HandleMove()
+    {
+        CheckMovement();
+        Movement();
 
+        if (Input.GetKey(KeyCode.Q) && !isWalk)
+        {
+            SwitchState(States.Attack);
+        }
+    }
+
+    private void HandleAttack()
+    {
+        punchCollider.ActivateCollider(true);
+        animationController.PunchAnimation(true);
+        timerPunch += Time.deltaTime;
+        var punchAnimationTime = 2f;
+
+        if (timerPunch >= punchAnimationTime)
+        {
+            timerPunch = 0f;
+            SwitchState(States.Move);
+            animationController.PunchAnimation(false);
+            punchCollider.ActivateCollider(false);
+        }
     }
 
     private void CheckMovement()
     {
-        var dir = movementDirection.sqrMagnitude;
-
-        if (dir != 0)
+        if (movementDirection != Vector3.zero)
         {
             isWalk = true;
+            HandleRotate();
         }
         else
-        {
             isWalk = false;
-        }
     }
 
-    private void HandleMovement()
+    private void Movement()
     {
         horizontalInput = Input.GetAxis(HORIZONTAL_INPUT);
         verticalInput = Input.GetAxis(VERTICAL_INPUT);
 
         movementDirection = new Vector3(horizontalInput, 0f, verticalInput);
+        movementDirection.Normalize();
         var running = Input.GetKey(KeyCode.LeftShift);
-        var lastDirection = (directionHelper.position - transform.position).normalized;
-        Debug.Log(lastDirection);
         
 
         if (isWalk)
         {
-            //HandleRotate();
-            body.transform.forward = Vector3.Lerp(body.transform.forward, movementDirection, 1f);
             movementSpeed = walkSpeed;
             animationController.WalkAnimation(true);
 
@@ -115,19 +124,21 @@ public class PlayerController : MonoBehaviour
 
             transform.Translate(movementDirection * movementSpeed * Time.deltaTime);
             body.transform.position = transform.position; //Karakterin bugunu engellemek için
-
             
         }
         else
         {
             animationController.WalkAnimation(false);
         }
+
+        
     }
 
     private void HandleRotate()
     {
-        var lookDirection = directionHelper.position - transform.position;
-        body.transform.forward = Vector3.Lerp(body.transform.forward, movementDirection, 1f);
+        var toRotate = Quaternion.LookRotation(movementDirection, Vector3.up);
+
+        body.transform.rotation = Quaternion.RotateTowards(body.transform.rotation, toRotate, rotateSpeed * Time.deltaTime);
     }
 
     public void SwitchState(States state)

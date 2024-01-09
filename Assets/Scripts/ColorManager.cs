@@ -1,11 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class ColorManager : MonoBehaviour
 {
+    public event Action OnSwitchColor;
+
     private SkinnedMeshRenderer meshRenderer;
 
+    [Header(" Settings ")]
     [SerializeField] private Color[] colors;
     [SerializeField] private int maxSwitchTimer;
 
@@ -51,7 +55,9 @@ public class ColorManager : MonoBehaviour
 
     private void SwitchColor()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        var switchColorButton = Input.GetKeyDown(KeyCode.Space);
+
+        if (switchColorButton)
         {
             canSwitch = false;
             var lastColorIndex = colors.Length - 1;
@@ -64,17 +70,19 @@ public class ColorManager : MonoBehaviour
 
             bodyColor = colors[colorIndex];
             meshRenderer.material.color = bodyColor;
+
+            OnSwitchColor?.Invoke();
         }
     }
 
     private void SetRandomColor()
     {
-        colorIndex = Random.Range(0, colors.Length);
+        colorIndex = UnityEngine.Random.Range(0, colors.Length);
         bodyColor = colors[colorIndex];
         meshRenderer.material.color = bodyColor;
     }
 
-    public int GetIndex()
+    public int GetColorIndex()
     {
         return colorIndex;
     }

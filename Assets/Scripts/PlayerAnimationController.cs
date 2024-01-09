@@ -4,20 +4,21 @@ using UnityEngine;
 
 public class PlayerAnimationController : MonoBehaviour
 {
-    private PlayerController playerController;
-
     private Animator animator;
 
     private int isWalkHash;
+    private int isRunHash;
+    private int isPunchHash;
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        playerController = GetComponent<PlayerController>();
     }
 
     private void Start()
     {
         isWalkHash = Animator.StringToHash("isWalk");
+        isRunHash = Animator.StringToHash("isRun");
+        isPunchHash = Animator.StringToHash("isPunch");
     }
 
     public void WalkAnimation(bool isWalk)
@@ -27,12 +28,12 @@ public class PlayerAnimationController : MonoBehaviour
 
     public void RunAnimation(bool isRun)
     {
-        animator.SetBool("isRun", isRun);
+        animator.SetBool(isRunHash, isRun);
     }
 
     public void PunchAnimation(bool isPunch)
     {
-        animator.SetBool("isPunch", isPunch);
+        animator.SetBool(isPunchHash, isPunch);
     }
 
 }

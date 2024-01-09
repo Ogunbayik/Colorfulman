@@ -22,6 +22,7 @@ public class Box : MonoBehaviour
     private int maxWalkTimer;
     private float walkTimer;
     private int colorIndex;
+    private int isMoveHash;
     private void Awake()
     {
         meshRenderer = GetComponentInChildren<MeshRenderer>();
@@ -30,6 +31,8 @@ public class Box : MonoBehaviour
     }
     void Start()
     {
+        isMoveHash = Animator.StringToHash("isMove");
+
         movementSpeed = Random.Range(1, 3);
         currentState = States.Idle;
         walkTimer = 0f;
@@ -68,7 +71,7 @@ public class Box : MonoBehaviour
     private void WalkState()
     {
         transform.position = Vector3.MoveTowards(transform.position, player.transform.position, movementSpeed * Time.deltaTime);
-        animator.SetTrigger("isMove");
+        animator.SetTrigger(isMoveHash);
     }
 
     public int GetColorIndex()
